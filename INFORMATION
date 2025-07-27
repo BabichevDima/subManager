@@ -1,0 +1,29 @@
+==================== migration ====================
+
+goose postgres postgres://postgres:postgres@localhost:5432/subscriptions_db?sslmode=disable up
+
+goose postgres postgres://postgres:postgres@localhost:5432/subscriptions_db?sslmode=disable down
+
+====================================================================================================
+
+
+==================== Just connect to DB ====================
+
+1) Enter the psql shell:
+=>  sudo -u postgres psql
+
+2) Connect to the new database:
+=> \c subscriptions_db
+
+====================================================================================================
+
+==================== Generate the Go code ====================
+
+1) Generate the Go code with 
+=> sqlc generate
+
+====================================================================================================
+=========START APP =============
+=> go build -o out && ./out
+
+====================================================================================================
