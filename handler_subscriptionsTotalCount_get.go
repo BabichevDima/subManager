@@ -35,9 +35,9 @@ func (cfg *apiConfig) handlerSubscriptionsTotalCost(w http.ResponseWriter, r *ht
 	log.Printf("Calculating total cost: start=%s end=%s user=%s service=%s", startDate, endDate, userIdStr, serviceName)
 
 	dbCalculateTotalCostRow, err := cfg.DB.CalculateTotalCost(r.Context(), database.CalculateTotalCostParams{
-		ToDate:      startDate,
-		ToDate_2:    endDate,
-		Column3:     userId,
+		StartDate:   startDate,
+		EndDate:     endDate,
+		UserId:      userId,
 		ServiceName: serviceName,
 	})
 	if err != nil {

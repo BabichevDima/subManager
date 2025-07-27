@@ -26,9 +26,9 @@ WHERE
 `
 
 type CalculateTotalCostParams struct {
-	ToDate      string
-	ToDate_2    string
-	Column3     uuid.UUID
+	StartDate   string
+	EndDate     string
+	UserId      uuid.UUID
 	ServiceName string
 }
 
@@ -39,9 +39,9 @@ type CalculateTotalCostRow struct {
 
 func (q *Queries) CalculateTotalCost(ctx context.Context, arg CalculateTotalCostParams) (CalculateTotalCostRow, error) {
 	row := q.db.QueryRowContext(ctx, calculateTotalCost,
-		arg.ToDate,
-		arg.ToDate_2,
-		arg.Column3,
+		arg.StartDate,
+		arg.EndDate,
+		arg.UserId,
 		arg.ServiceName,
 	)
 	var i CalculateTotalCostRow
@@ -69,7 +69,7 @@ type CreateSubscriptionParams struct {
 	Price       int32
 	UserID      uuid.UUID
 	ToDate      string
-	Column5     interface{}
+	EndDate     interface{}
 }
 
 func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (Subscription, error) {
@@ -78,7 +78,7 @@ func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscription
 		arg.Price,
 		arg.UserID,
 		arg.ToDate,
-		arg.Column5,
+		arg.EndDate,
 	)
 	var i Subscription
 	err := row.Scan(
@@ -208,7 +208,7 @@ RETURNING id, service_name, price, user_id, start_date, end_date, created_at, up
 type UpdateSubscriptionParams struct {
 	ServiceName string
 	Price       int32
-	Column3     interface{}
+	EndDate     interface{}
 	ID          uuid.UUID
 }
 
@@ -216,7 +216,7 @@ func (q *Queries) UpdateSubscription(ctx context.Context, arg UpdateSubscription
 	row := q.db.QueryRowContext(ctx, updateSubscription,
 		arg.ServiceName,
 		arg.Price,
-		arg.Column3,
+		arg.EndDate,
 		arg.ID,
 	)
 	var i Subscription

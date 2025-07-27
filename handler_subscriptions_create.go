@@ -89,7 +89,7 @@ func (cfg *apiConfig) handlerSubscriptionsCreate(w http.ResponseWriter, r *http.
 		Price:       int32(params.Price),
 		UserID:      userUUID,
 		ToDate:      params.StartDate,
-		Column5:     params.EndDate,
+		EndDate:     params.EndDate,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {

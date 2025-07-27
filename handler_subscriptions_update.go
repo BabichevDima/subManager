@@ -54,9 +54,9 @@ func (cfg *apiConfig) handlerSubscriptionsUpdate(w http.ResponseWriter, r *http.
 			respondWithError(w, http.StatusBadRequest, "Invalid EndDate format (use MM-YYYY)", err)
 			return
 		}
-		dbParams.Column3 = params.EndDate
+		dbParams.EndDate = params.EndDate
 	} else if params.EndDate == "" {
-		dbParams.Column3 = sql.NullTime{Valid: false}
+		dbParams.EndDate = sql.NullTime{Valid: false}
 	}
 
 	log.Printf("Updating subscription %s with params: %+v", subscriptionId, params)
