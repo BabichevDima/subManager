@@ -26,4 +26,7 @@ goose postgres postgres://postgres:postgres@localhost:5432/subscriptions_db?sslm
 =========START APP =============
 => go build -o out && ./out
 
+
+
+go build -o ./out ./cmd/submanager && ./out
 ====================================================================================================
