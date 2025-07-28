@@ -20,6 +20,36 @@ func NewUserHandler(u *usecase.SubscriptionUsecase) *SubscriptionHandler {
 	return &SubscriptionHandler{usecase: u}
 }
 
+// @title Subscriptions Management API
+// @version 1.0
+// @description API для управления подписками пользователей
+
+// @contact.name API Support
+// @contact.email support@submanager.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api
+// @schemes http
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// Subscribe godoc
+// @Summary Создать новую подписку
+// @Description Создает новую подписку для пользователя
+// @Tags Subscriptions
+// @Accept json
+// @Produce json
+// @Param input body dto.RequestSubscription true "Данные подписки"
+// @Success 201 {object} dto.ResponseSubscription
+// @Failure 400 {object} response.BadRequestError
+// @Failure 409 {object} response.ErrSubscriptionExists
+// @Failure 500 {object} response.InternalServerError
+// @Router /subscriptions [post]
 func (h *SubscriptionHandler) Subscribe(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	request := dto.RequestSubscription{}
@@ -48,25 +78,54 @@ func (h *SubscriptionHandler) Subscribe(w http.ResponseWriter, r *http.Request) 
 
 	subscriptionResponse, err := h.usecase.Subscribe(request)
 	if err != nil {
-		response.RespondWithError(w, http.StatusConflict, "Subscription already exists!", err)
+		if errors.Is(err, dto.ErrSubscriptionExists) {
+			response.RespondWithError(w, http.StatusConflict, "Subscription already exists", err)
+			return
+		}
+		response.RespondWithError(w, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 
 	response.RespondWithJSON(w, http.StatusCreated, subscriptionResponse)
 }
 
+// GetSubscriptionByID godoc
+// @Summary Получить подписку по ID
+// @Description Возвращает детали подписки по её идентификатору
+// @Tags Subscriptions
+// @Produce json
+// @Param subscriptionId path string true "ID подписки"
+// @Success 200 {object} dto.ResponseSubscription
+// @Failure 404 {object} response.BadRequestError
+// @Failure 500 {object} response.InternalServerError
+// @Router /subscriptions/{subscriptionId} [get]
 func (h *SubscriptionHandler) GetSubscriptionByID(w http.ResponseWriter, r *http.Request) {
 	subscriptionIdStr := r.PathValue("subscriptionId")
 
 	responseData, err := h.usecase.GetSubscriptionByID(subscriptionIdStr)
+
 	if err != nil {
-		response.RespondWithError(w, http.StatusNotFound, err.Error(), err)
+		if errors.Is(err, dto.ErrSubscriptionNotFound) {
+			response.RespondWithError(w, http.StatusNotFound, "Subscription not found", err)
+			return
+		}
+		response.RespondWithError(w, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 
 	response.RespondWithJSON(w, http.StatusOK, responseData)
 }
 
+// GetAllSubscriptions godoc
+// @Summary Получить список подписок
+// @Description Возвращает список подписок с пагинацией
+// @Tags Subscriptions
+// @Produce json
+// @Param page query int false "Номер страницы" default(1)
+// @Param pageSize query int false "Размер страницы" default(10)
+// @Success 200 {object} dto.SubscriptionListResponse
+// @Failure 500 {object} response.InternalServerError
+// @Router /subscriptions [get]
 func (h *SubscriptionHandler) GetAllSubscriptions(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page <= 0 {
@@ -87,19 +146,29 @@ func (h *SubscriptionHandler) GetAllSubscriptions(w http.ResponseWriter, r *http
 		return
 	}
 
-	responseData := map[string]interface{}{
-		"data": subscriptions,
-		"pagination": map[string]interface{}{
-			"total":      total,
-			"page":       page,
-			"pageSize":   pageSize,
-			"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
+	responseData := dto.SubscriptionListResponse{
+		Data: subscriptions,
+		Pagination: dto.PaginationResponse{
+			Total:      total,
+			Page:       page,
+			PageSize:   pageSize,
+			TotalPages: (total + int64(pageSize) - 1) / int64(pageSize),
 		},
 	}
 
 	response.RespondWithJSON(w, http.StatusOK, responseData)
 }
 
+// DeleteSubscription godoc
+// @Summary Удалить подписку
+// @Description Удаляет подписку по её идентификатору
+// @Tags Subscriptions
+// @Param subscriptionId path string true "ID подписки"
+// @Success 204
+// @Failure 400 {object} response.BadRequestError
+// @Failure 404 {object} response.BadRequestError
+// @Failure 500 {object} response.InternalServerError
+// @Router /subscriptions/{subscriptionId} [delete]
 func (h *SubscriptionHandler) DeleteSubscription(w http.ResponseWriter, r *http.Request) {
 	subscriptionId := r.PathValue("subscriptionId")
 
@@ -124,6 +193,19 @@ func (h *SubscriptionHandler) DeleteSubscription(w http.ResponseWriter, r *http.
 	response.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// UpdateSubscription godoc
+// @Summary Обновить подписку
+// @Description Обновляет данные подписки
+// @Tags Subscriptions
+// @Accept json
+// @Produce json
+// @Param subscriptionId path string true "ID подписки"
+// @Param input body dto.UpdateSubscriptionRequest true "Обновленные данные"
+// @Success 200 {object} dto.ResponseSubscription
+// @Failure 400 {object} response.BadRequestError
+// @Failure 404 {object} response.BadRequestError
+// @Failure 500 {object} response.InternalServerError
+// @Router /subscriptions/{subscriptionId} [put]
 func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.Request) {
 	subscriptionId := r.PathValue("subscriptionId")
 
@@ -156,6 +238,19 @@ func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.
 	response.RespondWithJSON(w, http.StatusOK, subscriptionResponse)
 }
 
+// @Tags Analytics
+// @Summary Рассчитать стоимость подписок
+// @Description Возвращает суммарную стоимость подписок за период с фильтрацией
+// @ID calculate-subscriptions-cost
+// @Produce json
+// @Param user_id query string true "UUID пользователя" format(uuid)
+// @Param service_name query string false "Название сервиса"
+// @Param start_date query string true "Начало периода (MM-YYYY)" example(01-2023)
+// @Param end_date query string true "Конец периода (MM-YYYY)" example(12-2023)
+// @Success 200 {object} dto.TotalCostResponse
+// @Failure 400 {object} response.BadRequestError
+// @Failure 500 {object} response.InternalServerError
+// @Router /api/subscriptions/total [get]
 func (h *SubscriptionHandler) CalculateSubscriptionsCost(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	req := dto.TotalCostRequest{

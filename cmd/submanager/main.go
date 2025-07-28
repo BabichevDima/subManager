@@ -22,6 +22,8 @@ import (
 	"github.com/BabichevDima/subManager/internal/usecase"
 	"github.com/BabichevDima/subManager/pkg/graceful"
 	"github.com/BabichevDima/subManager/pkg/logger"
+
+	_ "github.com/BabichevDima/subManager/internal/docs"
 )
 
 func main() {
@@ -74,7 +76,7 @@ func main() {
 	go func() {
 		logger.Info("HTTP server is listening",
 			zap.String("address", "http://localhost"+server.Addr),
-			// zap.String("docs", "http://localhost"+server.Addr+"/swagger"), // Если есть документация !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			zap.String("docs", "http://localhost"+server.Addr+"/swagger"),
 		)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatal("Failed to start server", zap.Error(err))

@@ -6,6 +6,24 @@ import (
 	"net/http"
 )
 
+// Пример для 400 Bad Request
+type BadRequestError struct {
+	Code    int    `json:"code" example:"400"`
+	Message string `json:"message" example:"Bad Request"`
+}
+
+// Пример для 500 Internal Server Error
+type InternalServerError struct {
+	Code    int    `json:"code" example:"500"`
+	Message string `json:"message" example:"Internal Server Error"`
+}
+
+// ErrSubscriptionExists — ошибка при попытке создать дубликат подписки
+type ErrSubscriptionExists struct {
+	Code    int    `json:"code" example:"409"`
+	Message string `json:"message" example:"Subscription already exists"`
+}
+
 func RespondWithError(w http.ResponseWriter, code int, msg string, err error) {
 	if err != nil {
 		log.Println(err)
