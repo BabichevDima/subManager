@@ -1,5 +1,7 @@
 # Subscription Management API (API для управления подписками)
 
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Subscription+Management+API)](https://git.io/typing-svg)
+
 ## Описание проекта
 
 RESTful API для управления подписками пользователей. Позволяет:
