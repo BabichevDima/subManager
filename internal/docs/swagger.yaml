@@ -1,0 +1,302 @@
+definitions:
+  dto.PaginationResponse:
+    properties:
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.RequestSubscription:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  dto.ResponseSubscription:
+    properties:
+      created_at:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.SubscriptionListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.ResponseSubscription'
+        type: array
+      pagination:
+        $ref: '#/definitions/dto.PaginationResponse'
+    type: object
+  dto.TotalCostResponse:
+    properties:
+      subscriptions_count:
+        type: integer
+      total_cost:
+        type: number
+    type: object
+  dto.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+    type: object
+  response.BadRequestError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Bad Request
+        type: string
+    type: object
+  response.ErrSubscriptionExists:
+    properties:
+      code:
+        example: 409
+        type: integer
+      message:
+        example: Subscription already exists
+        type: string
+    type: object
+  response.InternalServerError:
+    properties:
+      code:
+        example: 500
+        type: integer
+      message:
+        example: Internal Server Error
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/subscriptions/total:
+    get:
+      description: Возвращает суммарную стоимость подписок за период с фильтрацией
+      operationId: calculate-subscriptions-cost
+      parameters:
+      - description: UUID пользователя
+        format: uuid
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        type: string
+      - description: Начало периода (MM-YYYY)
+        example: 01-2023
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: Конец периода (MM-YYYY)
+        example: 12-2023
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TotalCostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Рассчитать стоимость подписок
+      tags:
+      - Analytics
+  /subscriptions:
+    get:
+      description: Возвращает список подписок с пагинацией
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Размер страницы
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SubscriptionListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Получить список подписок
+      tags:
+      - Subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Создает новую подписку для пользователя
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestSubscription'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSubscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrSubscriptionExists'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Создать новую подписку
+      tags:
+      - Subscriptions
+  /subscriptions/{subscriptionId}:
+    delete:
+      description: Удаляет подписку по её идентификатору
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Удалить подписку
+      tags:
+      - Subscriptions
+    get:
+      description: Возвращает детали подписки по её идентификатору
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSubscription'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Получить подписку по ID
+      tags:
+      - Subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные подписки
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: string
+      - description: Обновленные данные
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSubscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Обновить подписку
+      tags:
+      - Subscriptions
+swagger: "2.0"
