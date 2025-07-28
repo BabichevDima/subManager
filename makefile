@@ -10,3 +10,9 @@ swagger:
 run: swagger
 	@echo "Starting server..."
 	@go run cmd/submanager/main.go
+
+# Сборка проекта
+build:
+	@echo "Building application..."
+	@go build -o bin/submanager ./cmd/submanager
+	@echo "Build complete: bin/submanager"
