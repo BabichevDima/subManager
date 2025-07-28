@@ -1,6 +1,6 @@
 # Subscription Management API (API для управления подписками)
 
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Subscription+Management+API)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Subscription+Management+API+API+для+управления+подписками)](https://git.io/typing-svg)
 
 ## Описание проекта
 
@@ -31,6 +31,7 @@ RESTful API для управления подписками пользоват�
 
 ```bash
 git clone https://github.com/BabichevDima/subManager.git
+
 cd subManager/
 ```
 
