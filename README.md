@@ -31,7 +31,9 @@ RESTful API для управления подписками пользоват�
 
 ```bash
 git clone https://github.com/BabichevDima/subManager.git
+```
 
+```
 cd subManager/
 ```
 
@@ -47,7 +49,9 @@ docker compose up -d --build
 ```
 # Сборка и запуск
 go build -o ./out ./cmd/submanager && ./out
+```
 
+```
 # Запуск
 ./out
 ```
