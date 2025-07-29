@@ -1,24 +1,28 @@
-FROM golang:1.20 AS builder
-
+FROM golang:1.24.4 AS builder
 WORKDIR /app
 
+# Кэширование зависимостей
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Копируем исходный код
 COPY . .
 
-# Install swag and generate docs
-RUN go install github.com/swaggo/swag/cmd/swag@latest && \
-    swag init -g cmd/submanager/main.go --output ./internal/docs
+# Собираем бинарник в текущую директорию
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o ./submanager ./cmd/submanager
 
-# Build app
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o out ./cmd/submanager
-
-FROM alpine:3.18
+# Финальный образ
+FROM alpine:3.19
 WORKDIR /app
 
-COPY --from=builder /app/out .
-COPY --from=builder /app/internal/docs ./internal/docs
+# Копируем из текущей директории builder'а
+COPY --from=builder /app/submanager .
+COPY --from=builder /app/app ./app/
+COPY --from=builder /app/config ./config/
+COPY --from=builder /app/config/config.docker.yaml ./config/config.dev.yaml
+
+RUN apk add --no-cache ca-certificates && \
+    chmod +x submanager
 
 EXPOSE 8080
-CMD ["./out"]
+CMD ["./submanager"]
