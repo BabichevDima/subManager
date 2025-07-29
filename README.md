@@ -38,6 +38,13 @@ cd subManager/
 ### 2.1. Запуск (Вариант A)
 
 ```
+# Запуск
+docker compose up -d
+```
+
+### 2.2. Запуск (Вариант B)
+
+```
 # Сборка и запуск
 go build -o ./out ./cmd/submanager && ./out
 
@@ -45,12 +52,9 @@ go build -o ./out ./cmd/submanager && ./out
 ./out
 ```
 
-### 2.2. Запуск (Вариант B)
+### 2.3. Запуск (Вариант C)
 
 ```
-# Сборка
-make build
-
 # Запуск
 make run
 ```
