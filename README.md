@@ -39,7 +39,7 @@ cd subManager/
 
 ```
 # Запуск
-docker compose up -d
+docker compose up -d --build
 ```
 
 ### 2.2. Запуск (Вариант B)
