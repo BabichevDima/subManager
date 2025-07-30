@@ -13,7 +13,7 @@ type SubscriptionUsecase struct {
 	repo *repository.SubscriptionRepository
 }
 
-func NewUserUsecase(r *repository.SubscriptionRepository) *SubscriptionUsecase {
+func NewSubscriptionUsecase(r *repository.SubscriptionRepository) *SubscriptionUsecase {
 	return &SubscriptionUsecase{repo: r}
 }
 

@@ -50,8 +50,8 @@ func main() {
 	logger.Info("Successfully connected to the database")
 
 	subscriptionRepo := repository.NewSubscriptionRepository(dbConn)
-	subscriptionUsecase := usecase.NewUserUsecase(subscriptionRepo)
-	subscriptionHandler := handlers.NewUserHandler(subscriptionUsecase)
+	subscriptionUsecase := usecase.NewSubscriptionUsecase(subscriptionRepo)
+	subscriptionHandler := handlers.NewSubscriptionHandler(subscriptionUsecase)
 
 	mux := http.NewServeMux()
 	router.RegisterRoutes(mux, subscriptionHandler)
