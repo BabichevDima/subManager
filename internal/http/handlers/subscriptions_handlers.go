@@ -16,7 +16,7 @@ type SubscriptionHandler struct {
 	usecase *usecase.SubscriptionUsecase
 }
 
-func NewUserHandler(u *usecase.SubscriptionUsecase) *SubscriptionHandler {
+func NewSubscriptionHandler(u *usecase.SubscriptionUsecase) *SubscriptionHandler {
 	return &SubscriptionHandler{usecase: u}
 }
 
